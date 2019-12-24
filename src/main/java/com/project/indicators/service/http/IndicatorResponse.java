@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class HistoricalResponse {
+public class IndicatorResponse {
 
     private Float totalDonations;
     private Float totalAmountDonations;

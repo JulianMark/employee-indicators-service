@@ -11,7 +11,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class HistoricalDTO {
+public class IndicatorDTO {
 
     private Float totalDonations;
     private Float totalAmountDonations;
