@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.indicators.mapper.ActuallyMapper">
+
+    <select id="obtainActually" resultType="com.project.indicators.model.dto.IndicatorDTO">
+        SELECT (SELECT COUNT (D.ID)
+                  FROM DONATIONS D
+                  WHERE 1 = 1
+                  AND  D.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND  D.ID_CAMPAIGN = E.ID_CAMPAIGN) TOTALDONATIONS,
+               (SELECT SUM (D.AMOUNT)
+                  FROM DONATIONS D
+                  WHERE 1 = 1
+                  AND  D.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND  D.ID_CAMPAIGN = E.ID_CAMPAIGN) TOTALAMOUNTDONATIONS,
+               (SELECT COUNT (D.ID_TYPE_PAY)
+                  FROM DONATIONS D
+                  WHERE 1 = 1
+                  AND  D.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND  D.ID_CAMPAIGN = E.ID_CAMPAIGN
+                  AND D.ID_TYPE_PAY =1) CREDITTYPE,
+               (SELECT SUM (DR.PRODUCTIVE_HOURS)
+                  FROM DAILY_RECORDS DR
+                  WHERE 1 = 1
+                  AND  DR.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND  DR.ID_CAMPAIGN = E.ID_CAMPAIGN) TOTALPRODUCTIVEHOURS,
+               (SELECT SUM (DR.NON_PRODUCTIVE_HOURS)
+                  FROM DAILY_RECORDS DR
+                  WHERE 1 = 1
+                  AND  DR.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND  DR.ID_CAMPAIGN = E.ID_CAMPAIGN) TOTALNONPRODUCTIVEHOURS
+        FROM TEAM_EMPLOYEES E
+        WHERE 1 = 1
+        AND E.ID_EMPLOYEE = #{actually.idEmployee}
+        AND FINAL_DATE IS NULL
+	</select>
+
+</mapper>

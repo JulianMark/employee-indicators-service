@@ -1,7 +1,7 @@
 package com.project.indicators.mapper;
 
 import com.project.indicators.model.dto.IndicatorDTO;
-import com.project.indicators.service.http.HistoricalRequest;
+import com.project.indicators.service.http.IndicatorRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -10,5 +10,5 @@ import org.springframework.stereotype.Component;
 @Mapper
 public interface HistoricalMapper {
 
-    IndicatorDTO obtainHistorical (@Param("historical") HistoricalRequest historicalRequest);
+    IndicatorDTO obtainHistorical (@Param("historical") IndicatorRequest indicatorRequest);
 }

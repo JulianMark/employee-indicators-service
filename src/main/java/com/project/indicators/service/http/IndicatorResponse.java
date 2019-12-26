@@ -22,4 +22,8 @@ public class IndicatorResponse {
     private Float totalAverageAmount;
     private Float totalAverageCreditType;
     private String errorMessage;
+
+    public IndicatorResponse(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 }

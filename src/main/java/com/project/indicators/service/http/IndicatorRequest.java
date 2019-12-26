@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class HistoricalRequest {
+public class IndicatorRequest {
 
     private Integer idEmployee;
 }
