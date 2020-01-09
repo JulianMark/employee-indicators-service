@@ -13,13 +13,13 @@ public class Utils {
 
     private final static String DATE_FORMAT = "yyyy/mm/dd";
 
-    public void validateRequest (Object request){
+    public static void validateRequest (Object request){
         if (request == null){
             throw new IllegalArgumentException("el body del metodo no debe ser nulo");
         }
     }
 
-    public void validateIdNumber (Integer numberId){
+    public static void validateIdNumber (Integer numberId){
         if (numberId == null){
             throw new IllegalArgumentException("el id no debe ser nulo");
         }
@@ -28,22 +28,13 @@ public class Utils {
         }
     }
 
-    public void validateIndicatorDTO (IndicatorDTO indicatorDTO){
+    public static void validateIndicatorDTO (IndicatorDTO indicatorDTO){
         if (indicatorDTO == null){
-            throw new IllegalArgumentException("el objeto de transferencia es nulo");
+            throw new IllegalArgumentException("el objeto de transferencia no puede ser nulo");
         }
     }
 
-    public boolean validatePropIndicatorDTO (IndicatorDTO indicatorDTO){
-        if (indicatorDTO.getTotalDonations() == null) return false;
-        if (indicatorDTO.getTotalAmountDonations() == null) return false;
-        if (indicatorDTO.getCreditType() == null) return false;
-        if (indicatorDTO.getTotalProductiveHours() == null) return false;
-        if (indicatorDTO.getTotalNonProductiveHours() == null) return false;
-        return true;
-    }
-
-    public void validateMonth (Integer monthNumber){
+    public static void validateMonth (Integer monthNumber){
         if (monthNumber == null){
             throw new IllegalArgumentException("el mes no puede tener el valor de nulo");
         }
@@ -52,12 +43,12 @@ public class Utils {
         }
     }
 
-    public void validateYear (Integer yearNumber){
+    public static void validateYear (Integer yearNumber){
         if (yearNumber == null){
             throw new IllegalArgumentException("el anio no puede tener el valor de nulo");
         }
         if (yearNumber < 2015){
-            throw new IllegalArgumentException("el anio debe ser mayor al 2015");
+            throw new IllegalArgumentException("el anio debe ser mayor al 2014");
         }
         Calendar rightNow = Calendar.getInstance();
         if (yearNumber > rightNow.get(Calendar.YEAR)){
@@ -65,7 +56,7 @@ public class Utils {
         }
     }
 
-    public void isDateValid(String date) {
+    public static void isDateValid(String date) {
         try {
             DateFormat df = new SimpleDateFormat(DATE_FORMAT);
             df.setLenient(false);

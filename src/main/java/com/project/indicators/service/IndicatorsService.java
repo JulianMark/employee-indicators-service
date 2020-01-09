@@ -1,6 +1,5 @@
 package com.project.indicators.service;
 
-import com.project.indicators.Utils.Utils;
 import com.project.indicators.builder.IndicatorBuilder;
 import com.project.indicators.mapper.*;
 import com.project.indicators.model.dto.IndicatorDTO;
@@ -17,6 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.project.indicators.Utils.Utils.*;
+
+
 @RestController
 @Api(value="Indicators employee WS", produces = MediaType.APPLICATION_JSON_VALUE)
 public class IndicatorsService {
@@ -29,10 +31,9 @@ public class IndicatorsService {
     private final MonthlyOSCMapper monthlyOSCMapper;
     private final RangeMapper rangeMapper;
     private final IndicatorBuilder indicatorBuilder;
-    private final Utils utils;
 
     @Autowired
-    public IndicatorsService(HistoricalMapper historicalMapper, OSCMapper oscMapper, ActuallyMapper actuallyMapper, MonthlyOSCMapper monthlyOSCMapper, IndicatorBuilder indicatorBuilder, MonthlyMapper monthlyMapper, RangeMapper rangeMapper, Utils utils) {
+    public IndicatorsService(HistoricalMapper historicalMapper, OSCMapper oscMapper, ActuallyMapper actuallyMapper, MonthlyOSCMapper monthlyOSCMapper, IndicatorBuilder indicatorBuilder, MonthlyMapper monthlyMapper, RangeMapper rangeMapper) {
         this.historicalMapper = historicalMapper;
         this.oscMapper = oscMapper;
         this.actuallyMapper = actuallyMapper;
@@ -40,7 +41,6 @@ public class IndicatorsService {
         this.indicatorBuilder = indicatorBuilder;
         this.monthlyMapper = monthlyMapper;
         this.rangeMapper = rangeMapper;
-        this.utils = utils;
     }
 
     @PostMapping(
@@ -55,10 +55,14 @@ public class IndicatorsService {
     })
     public ResponseEntity<IndicatorResponse> obtainHistoricalIndicator (@RequestBody IndicatorRequest request){
         try{
-            utils.validateRequest(request);
-            utils.validateIdNumber(request.getIdEmployee());
+            validateRequest(request);
+            validateIdNumber(request.getIdEmployee());
             final IndicatorDTO indicatorDTO = historicalMapper.obtainHistorical(request);
-            utils.validateIndicatorDTO(indicatorDTO);
+            if (indicatorDTO == null){
+                LOGGER.info("No se obtubieron indicadores para el emmpleado con ID: "+request.getIdEmployee());
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body(new IndicatorResponse("Empleado o indicadores no encontrados"));
+            }
             final IndicatorResponse response = indicatorBuilder.apply(indicatorDTO);
             LOGGER.info("Se obtuvo el indicador historico para el empleado con ID: "+request.getIdEmployee());
             return ResponseEntity.ok(response);
@@ -85,11 +89,15 @@ public class IndicatorsService {
     })
     public ResponseEntity<IndicatorResponse> obtainHistoricalOSC (@RequestBody OSCRequest request){
         try {
-            utils.validateRequest(request);
-            utils.validateIdNumber(request.getIdEmployee());
-            utils.validateIdNumber(request.getIdOSC());
+            validateRequest(request);
+            validateIdNumber(request.getIdEmployee());
+            validateIdNumber(request.getIdOSC());
             final IndicatorDTO indicatorDTO = oscMapper.obtainOSC(request);
-            utils.validateIndicatorDTO(indicatorDTO);
+            if (indicatorDTO == null){
+                LOGGER.info("No se obtubieron indicadores historicos de la OSC para el emmpleado con ID: "+request.getIdEmployee());
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body(new IndicatorResponse("Empleado o indicadores no encontrados"));
+            }
             final IndicatorResponse response = indicatorBuilder.apply(indicatorDTO);
             LOGGER.info("Se obtuvo el indicador historico de la osc {} para el empleado con ID: {}", request.getIdOSC(), request.getIdEmployee());
             return ResponseEntity.ok(response);
@@ -116,10 +124,14 @@ public class IndicatorsService {
     })
     public ResponseEntity<IndicatorResponse> obtainActualIndicator (@RequestBody IndicatorRequest request){
         try {
-            utils.validateRequest(request);
-            utils.validateIdNumber(request.getIdEmployee());
+            validateRequest(request);
+            validateIdNumber(request.getIdEmployee());
             final IndicatorDTO indicatorDTO = actuallyMapper.obtainActually(request);
-            utils.validateIndicatorDTO(indicatorDTO);
+            if (indicatorDTO == null){
+                LOGGER.info("No se obtubieron indicadores actuales para el emmpleado con ID: "+request.getIdEmployee());
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body(new IndicatorResponse("Empleado o indicadores actuales no encontrados"));
+            }
             final IndicatorResponse response = indicatorBuilder.apply(indicatorDTO);
             LOGGER.info("Se obtuvo el indicador actual para el empleado con ID: "+request.getIdEmployee());
             return ResponseEntity.ok(response);
@@ -146,13 +158,12 @@ public class IndicatorsService {
     })
     public ResponseEntity<IndicatorResponse> obtainMonthlyIndicator (@RequestBody MonthlyRequest request){
         try {
-            utils.validateRequest(request);
-            utils.validateIdNumber(request.getIdEmployee());
-            utils.validateMonth(request.getMonthNumber());
-            utils.validateYear(request.getYearNumber());
+            validateRequest(request);
+            validateIdNumber(request.getIdEmployee());
+            validateMonth(request.getMonthNumber());
+            validateYear(request.getYearNumber());
             final IndicatorDTO indicatorDTO = monthlyMapper.obtainMonthly(request);
-            utils.validateIndicatorDTO(indicatorDTO);
-            if (!utils.validatePropIndicatorDTO(indicatorDTO)){
+            if (indicatorDTO == null){
                 LOGGER.info("No se obtuvo el indicador mensual mes: {} anio: {} para el empleado con ID: {}"
                         ,request.getMonthNumber()
                         ,request.getYearNumber()
@@ -186,14 +197,13 @@ public class IndicatorsService {
     })
     public ResponseEntity<IndicatorResponse> obtainMonthlyOSCIndicator (@RequestBody MonthlyRequest request){
         try {
-            utils.validateRequest(request);
-            utils.validateIdNumber(request.getIdEmployee());
-            utils.validateMonth(request.getMonthNumber());
-            utils.validateYear(request.getYearNumber());
-            utils.validateIdNumber(request.getIdOSC());
+            validateRequest(request);
+            validateIdNumber(request.getIdEmployee());
+            validateMonth(request.getMonthNumber());
+            validateYear(request.getYearNumber());
+            validateIdNumber(request.getIdOSC());
             final IndicatorDTO indicatorDTO = monthlyOSCMapper.obtainMonthlyOSC(request);
-            utils.validateIndicatorDTO(indicatorDTO);
-            if (!utils.validatePropIndicatorDTO(indicatorDTO)){
+            if (indicatorDTO == null){
                 LOGGER.info("No se obtuvo el indicador mensual mes: {} anio: {} para el empleado con ID: {} OSC ID: {}"
                         ,request.getMonthNumber()
                         ,request.getYearNumber()
@@ -230,12 +240,16 @@ public class IndicatorsService {
     })
     public ResponseEntity<IndicatorResponse> obtainRangeIndicator (@RequestBody RangeRequest request){
         try {
-            utils.validateRequest(request);
-            utils.validateIdNumber(request.getIdEmployee());
-            utils.isDateValid(request.getInitialDate());
-            utils.isDateValid(request.getFinalDate());
+            validateRequest(request);
+            validateIdNumber(request.getIdEmployee());
+            isDateValid(request.getInitialDate());
+            isDateValid(request.getFinalDate());
             final IndicatorDTO indicatorDTO = rangeMapper.obtainRange(request);
-            utils.validateIndicatorDTO(indicatorDTO);
+            if (indicatorDTO == null){
+                LOGGER.info("No se obtubieron indicadores para el emmpleado con ID: "+request.getIdEmployee());
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body(new IndicatorResponse("Empleado o indicadores no encontrados"));
+            }
             final IndicatorResponse response = indicatorBuilder.apply(indicatorDTO);
             LOGGER.info("Se obtuvo el indicador por rango desde {} hasta {} para el empleado con ID: "
                     ,request.getInitialDate()

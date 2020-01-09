@@ -12,26 +12,31 @@ public class IndicatorBuilder implements Function<IndicatorDTO, IndicatorRespons
     @Override
     public IndicatorResponse apply(IndicatorDTO indicatorDTO) {
 
-        return new IndicatorResponse(indicatorDTO.getTotalDonations(),
-                indicatorDTO.getTotalAmountDonations(),
-                indicatorDTO.getCreditType(),
-                indicatorDTO.getTotalProductiveHours(),
-                indicatorDTO.getTotalNonProductiveHours(),
+        return new IndicatorResponse(numericConverter(indicatorDTO.getTotalDonations()),
+                numericConverter(indicatorDTO.getTotalAmountDonations()),
+                numericConverter(indicatorDTO.getCreditType()),
+                numericConverter(indicatorDTO.getTotalProductiveHours()),
+                numericConverter(indicatorDTO.getTotalNonProductiveHours()),
                 obtainTotalAverageCatchment(indicatorDTO),
                 obtainTotalAverageAmount(indicatorDTO),
                 obtainTotalAverageCreditType(indicatorDTO),
                 indicatorDTO.getErrorMessage());
     }
 
+    private Float numericConverter(Float num) {
+        return ( num == null) ? 0f : num;
+    }
+
     private float obtainTotalAverageCatchment(IndicatorDTO indicatorDTO){
-        return indicatorDTO.getTotalDonations() / indicatorDTO.getTotalProductiveHours();
+        return numericConverter(indicatorDTO.getTotalDonations()) / numericConverter(indicatorDTO.getTotalProductiveHours());
     }
 
     private float obtainTotalAverageAmount(IndicatorDTO indicatorDTO){
-        return indicatorDTO.getTotalAmountDonations()/ indicatorDTO.getTotalDonations();
+        return numericConverter(indicatorDTO.getTotalAmountDonations()) / numericConverter(indicatorDTO.getTotalDonations());
     }
 
     private float obtainTotalAverageCreditType(IndicatorDTO indicatorDTO){
-        return (indicatorDTO.getCreditType() / indicatorDTO.getTotalDonations()) * 100 ;
+        return (numericConverter(indicatorDTO.getCreditType()) / numericConverter(indicatorDTO.getTotalDonations())) * 100 ;
     }
+
 }
