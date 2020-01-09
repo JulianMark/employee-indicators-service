@@ -23,19 +23,19 @@ public class IndicatorBuilder implements Function<IndicatorDTO, IndicatorRespons
                 indicatorDTO.getErrorMessage());
     }
 
-    private Float numericConverter(Float num) {
+    public Float numericConverter(Float num) {
         return ( num == null) ? 0f : num;
     }
 
-    private float obtainTotalAverageCatchment(IndicatorDTO indicatorDTO){
+    public Float obtainTotalAverageCatchment(IndicatorDTO indicatorDTO){
         return numericConverter(indicatorDTO.getTotalDonations()) / numericConverter(indicatorDTO.getTotalProductiveHours());
     }
 
-    private float obtainTotalAverageAmount(IndicatorDTO indicatorDTO){
+    public Float obtainTotalAverageAmount(IndicatorDTO indicatorDTO){
         return numericConverter(indicatorDTO.getTotalAmountDonations()) / numericConverter(indicatorDTO.getTotalDonations());
     }
 
-    private float obtainTotalAverageCreditType(IndicatorDTO indicatorDTO){
+    public Float obtainTotalAverageCreditType(IndicatorDTO indicatorDTO){
         return (numericConverter(indicatorDTO.getCreditType()) / numericConverter(indicatorDTO.getTotalDonations())) * 100 ;
     }
 
