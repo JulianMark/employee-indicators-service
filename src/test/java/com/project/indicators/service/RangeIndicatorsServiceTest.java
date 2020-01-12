@@ -103,8 +103,8 @@ class RangeIndicatorsServiceTest {
     class ObtainRangeIndicatorStatusOKTest {
 
         @Test
-        @DisplayName("When No Exception is Catched")
-        public void obtainRange_NoExceptionCatched_ReturnsOk(){
+        @DisplayName("When No Exception is Caught")
+        public void obtainRange_NoExceptionCaught_ReturnsOk(){
             when(rangeMapper.obtainRange(any())).thenReturn(VALID_DTO);
             when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainRangeIndicator(VALID_REQUEST);

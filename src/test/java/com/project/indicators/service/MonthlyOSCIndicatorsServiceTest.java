@@ -113,8 +113,8 @@ class MonthlyOSCIndicatorsServiceTest {
     class ObtainMonthlyOSCIndicatorStatusOKTest {
 
         @Test
-        @DisplayName("When No Exception is Catched")
-        public void obtainMonthlyOSCIndicator_NoExceptionCatched_ReturnsOk(){
+        @DisplayName("When No Exception is Caught")
+        public void obtainMonthlyOSCIndicator_NoExceptionCaught_ReturnsOk(){
             when(monthlyOSCMapper.obtainMonthlyOSC(any())).thenReturn(VALID_DTO);
             when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyOSCIndicator(VALID_REQUEST);

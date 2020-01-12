@@ -99,8 +99,8 @@ class HistoricalIndicatorsServiceTest {
     class ObtainHistoricalIndicatorStatusOKTest {
 
         @Test
-        @DisplayName("When No Exception is Catched")
-        public void obtainHistoricalIndicator_NoExceptionCatched_ReturnsOk(){
+        @DisplayName("When No Exception is Caught")
+        public void obtainHistoricalIndicator_NoExceptionCaught_ReturnsOk(){
             when(historicalMapper.obtainHistorical(any())).thenReturn(VALID_DTO);
             when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalIndicator(VALID_REQUEST);

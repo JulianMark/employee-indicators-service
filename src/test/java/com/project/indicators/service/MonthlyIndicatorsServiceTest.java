@@ -99,8 +99,8 @@ class MonthlyIndicatorsServiceTest {
     class ObtainMonthlyIndicatorStatusOKTest {
 
         @Test
-        @DisplayName("When No Exception is Catched")
-        public void obtainMonthlyIndicator_NoExceptionCatched_ReturnsOk(){
+        @DisplayName("When No Exception is Caught")
+        public void obtainMonthlyIndicator_NoExceptionCaught_ReturnsOk(){
             when(monthlyMapper.obtainMonthly(any())).thenReturn(VALID_DTO);
             when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyIndicator(VALID_REQUEST);

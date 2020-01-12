@@ -110,8 +110,8 @@ class HistoricalIndicatorsOSCServiceTest {
     class ObtainHistoricalIndicatorOSCStatusOKTest {
 
         @Test
-        @DisplayName("When No Exception is Catched")
-        public void obtainHistoricalIndicatorOSC_NoExceptionCatched_ReturnsOk(){
+        @DisplayName("When No Exception is Caught")
+        public void obtainHistoricalIndicatorOSC_NoExceptionCaught_ReturnsOk(){
             when(oscMapper.obtainOSC(any())).thenReturn(VALID_DTO);
             when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalOSC(VALID_REQUEST);
