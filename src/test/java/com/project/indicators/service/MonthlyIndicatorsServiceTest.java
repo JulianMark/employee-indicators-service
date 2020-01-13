@@ -47,7 +47,7 @@ class MonthlyIndicatorsServiceTest {
 
         @Test
         @DisplayName("When Request is null")
-        public void obtainMonthlylIndicator_RequestIsNull_ReturnBadRequest(){
+        public void obtainMonthlyIndicator_RequestIsNull_ReturnBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyIndicator(null);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
