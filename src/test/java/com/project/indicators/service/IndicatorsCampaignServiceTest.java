@@ -46,7 +46,7 @@ class IndicatorsCampaignServiceTest {
 
     @Nested
     @DisplayName("Should return 400 (Bad Request)")
-    class ObtainCampaignIndicatorOSCRequestTest {
+    class ObtainCampaignIndicatorRequestTest {
 
         @Test
         @DisplayName("When Request is null")
@@ -67,7 +67,7 @@ class IndicatorsCampaignServiceTest {
         }
 
         @Test
-        @DisplayName("When idOSC is zero or less zero")
+        @DisplayName("When idCampaign is zero or less zero")
         public void obtainHistoricalIndicatorOSC_IdOSCIsZeroOrLessZero_ReturnBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainCampaignIndicator(INVALID_REQUEST_CAMPAIGN);
             assertThat("Status Code Response",
@@ -104,7 +104,10 @@ class IndicatorsCampaignServiceTest {
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
                     is(HttpStatus.NO_CONTENT));
+            assertThat(responseEntity.getBody().getErrorMessage(),is("Indicadores no encontrados"));
         }
+
+
     }
 
     @Nested
