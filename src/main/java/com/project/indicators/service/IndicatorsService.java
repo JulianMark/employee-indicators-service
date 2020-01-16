@@ -30,10 +30,11 @@ public class IndicatorsService {
     private final MonthlyMapper monthlyMapper;
     private final MonthlyOSCMapper monthlyOSCMapper;
     private final RangeMapper rangeMapper;
+    private final CampaignMapper campaignMapper;
     private final IndicatorBuilder indicatorBuilder;
 
     @Autowired
-    public IndicatorsService(HistoricalMapper historicalMapper, OSCMapper oscMapper, ActuallyMapper actuallyMapper, MonthlyOSCMapper monthlyOSCMapper, IndicatorBuilder indicatorBuilder, MonthlyMapper monthlyMapper, RangeMapper rangeMapper) {
+    public IndicatorsService(HistoricalMapper historicalMapper, OSCMapper oscMapper, ActuallyMapper actuallyMapper, MonthlyOSCMapper monthlyOSCMapper, IndicatorBuilder indicatorBuilder, MonthlyMapper monthlyMapper, RangeMapper rangeMapper, CampaignMapper campaignMapper) {
         this.historicalMapper = historicalMapper;
         this.oscMapper = oscMapper;
         this.actuallyMapper = actuallyMapper;
@@ -41,6 +42,7 @@ public class IndicatorsService {
         this.indicatorBuilder = indicatorBuilder;
         this.monthlyMapper = monthlyMapper;
         this.rangeMapper = rangeMapper;
+        this.campaignMapper = campaignMapper;
     }
 
     @PostMapping(
@@ -268,4 +270,44 @@ public class IndicatorsService {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR).body(new IndicatorResponse(ex.getMessage()));
         }
     }
+
+    @PostMapping(
+            value = "employee/indicators/campaign",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Obtener indicadores por campania del empleado")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Se obtienen los indicadores campania el empleado", response = IndicatorResponse.class),
+            @ApiResponse(code = 204, message = "El dato ingresado es incorrecto", response = IndicatorResponse.class),
+            @ApiResponse(code = 400, message = "Argumentos inválidos", response = IndicatorResponse.class),
+            @ApiResponse(code = 500, message = "Error inesperado del servicio web", response = IndicatorResponse.class)
+    })
+    public ResponseEntity<IndicatorResponse> obtainCampaignIndicator (@RequestBody CampaignRequest request){
+        try {
+            validateRequest(request);
+            validateIdNumber(request.getIdEmployee());
+            validateIdNumber(request.getIdCampaign());
+            final IndicatorDTO indicatorDTO = campaignMapper.obtainCampaign(request);
+            if (indicatorDTO == null){
+                LOGGER.info("No se obtuvo el indicador por campania: {} para el empleado con ID: {}"
+                        ,request.getIdCampaign()
+                        ,request.getIdEmployee());
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body(new IndicatorResponse("Indicadores no encontrados"));
+            }
+            final IndicatorResponse response = indicatorBuilder.apply(indicatorDTO);
+            LOGGER.info("Se obtuvo el indicador por campania: {} para el empleado con ID: {},"
+                    ,request.getIdCampaign()
+                    ,request.getIdEmployee());
+            return ResponseEntity.ok(response);
+        }catch (IllegalArgumentException iae){
+            LOGGER.warn("Los parametros ingresados son invalidos", iae);
+            return ResponseEntity.badRequest().body(new IndicatorResponse(iae.getMessage()));
+        }catch (Exception ex) {
+            LOGGER.error("Ocurrio un error al intentar obtener los indicadores de la campania {} para el empleado id "
+                    ,request.getIdCampaign(),request.getIdEmployee(), ex);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR).body(new IndicatorResponse(ex.getMessage()));
+        }
+    }
+
 }

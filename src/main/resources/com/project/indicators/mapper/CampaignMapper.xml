@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.indicators.mapper.CampaignMapper">
+
+    <select id="obtainCampaign" resultType="com.project.indicators.model.dto.IndicatorDTO">
+        SELECT (SELECT COUNT (D.ID)
+                  FROM DONATIONS D JOIN CAMPAIGNS CA ON CA.ID = D.ID_CAMPAIGN
+                  WHERE D.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND CA.ID = E.ID_CAMPAIGN) TOTALDONATIONS,
+               (SELECT SUM (D.AMOUNT)
+                  FROM DONATIONS D JOIN CAMPAIGNS CA ON CA.ID = D.ID_CAMPAIGN
+                  WHERE D.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND CA.ID = E.ID_CAMPAIGN) TOTALAMOUNTDONATIONS,
+               (SELECT COUNT (D.ID_TYPE_PAY)
+                  FROM DONATIONS D JOIN CAMPAIGNS CA ON CA.ID = D.ID_CAMPAIGN
+                  WHERE D.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND CA.ID = E.ID_CAMPAIGN
+                  AND D.ID_TYPE_PAY =1) CREDITTYPE,
+               (SELECT SUM (DR.PRODUCTIVE_HOURS)
+                  FROM DAILY_RECORDS DR JOIN CAMPAIGNS CA ON CA.ID = DR.ID_CAMPAIGN
+                  WHERE DR.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND CA.ID = E.ID_CAMPAIGN) TOTALPRODUCTIVEHOURS,
+               (SELECT SUM (DR.NON_PRODUCTIVE_HOURS)
+                  FROM DAILY_RECORDS DR JOIN CAMPAIGNS CA ON CA.ID = DR.ID_CAMPAIGN
+                  WHERE DR.ID_EMPLOYEE_TEAM = E.ID_EMPLOYEE
+                  AND CA.ID = E.ID_CAMPAIGN) TOTALNONPRODUCTIVEHOURS
+FROM TEAM_EMPLOYEES E
+        JOIN CAMPAIGNS C ON C.ID = E.ID_CAMPAIGN
+        WHERE 1 = 1
+        AND E.ID_EMPLOYEE = #{campaignRequest.idEmployee}
+        AND C.ID = #{campaignRequest.idCampaign}
+	</select>
+
+</mapper>
