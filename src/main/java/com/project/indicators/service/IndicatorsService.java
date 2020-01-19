@@ -1,5 +1,6 @@
 package com.project.indicators.service;
 
+import com.project.indicators.Utils.IndicatorValidator;
 import com.project.indicators.builder.IndicatorBuilder;
 import com.project.indicators.mapper.*;
 import com.project.indicators.model.dto.IndicatorDTO;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 import static com.project.indicators.Utils.Utils.*;
 
@@ -32,9 +35,10 @@ public class IndicatorsService {
     private final RangeMapper rangeMapper;
     private final CampaignMapper campaignMapper;
     private final IndicatorBuilder indicatorBuilder;
+    private final IndicatorValidator indicatorValidator;
 
     @Autowired
-    public IndicatorsService(HistoricalMapper historicalMapper, OSCMapper oscMapper, ActuallyMapper actuallyMapper, MonthlyOSCMapper monthlyOSCMapper, IndicatorBuilder indicatorBuilder, MonthlyMapper monthlyMapper, RangeMapper rangeMapper, CampaignMapper campaignMapper) {
+    public IndicatorsService(HistoricalMapper historicalMapper, OSCMapper oscMapper, ActuallyMapper actuallyMapper, MonthlyOSCMapper monthlyOSCMapper, IndicatorBuilder indicatorBuilder, MonthlyMapper monthlyMapper, RangeMapper rangeMapper, CampaignMapper campaignMapper, IndicatorValidator indicatorValidator) {
         this.historicalMapper = historicalMapper;
         this.oscMapper = oscMapper;
         this.actuallyMapper = actuallyMapper;
@@ -43,6 +47,7 @@ public class IndicatorsService {
         this.monthlyMapper = monthlyMapper;
         this.rangeMapper = rangeMapper;
         this.campaignMapper = campaignMapper;
+        this.indicatorValidator = indicatorValidator;
     }
 
     @PostMapping(
@@ -59,20 +64,14 @@ public class IndicatorsService {
         try{
             validateRequest(request);
             validateIdNumber(request.getIdEmployee());
-            final IndicatorDTO indicatorDTO = historicalMapper.obtainHistorical(request);
-            if (indicatorDTO == null){
-                LOGGER.info("No se obtubieron indicadores para el emmpleado con ID: "+request.getIdEmployee());
-                return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                        .body(new IndicatorResponse("Empleado o indicadores no encontrados"));
-            }
-            final IndicatorResponse response = indicatorBuilder.apply(indicatorDTO);
-            LOGGER.info("Se obtuvo el indicador historico para el empleado con ID: "+request.getIdEmployee());
-            return ResponseEntity.ok(response);
+            return Optional.ofNullable(historicalMapper.obtainHistorical(request))
+                    .map(indicatorValidator.obtainIndicatorValidator())
+                    .orElseGet(indicatorValidator.obtainEmptyIndicator());
         }catch (IllegalArgumentException iae){
-            LOGGER.warn("Los parametros ingresados son invalidos", iae);
+            LOGGER.warn("Parameters entered are invalid", iae);
             return ResponseEntity.badRequest().body(new IndicatorResponse(iae.getMessage()));
         }catch (Exception ex) {
-            LOGGER.error("Ocurrio un error al intentar obtener los indicadores historicos para el empleado id {}"
+            LOGGER.error("An error occurred while trying to get historical indicators for employee id {}"
                     ,request.getIdEmployee(), ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR).body(new IndicatorResponse(ex.getMessage()));

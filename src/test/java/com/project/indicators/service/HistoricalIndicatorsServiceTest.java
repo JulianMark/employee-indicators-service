@@ -1,5 +1,6 @@
 package com.project.indicators.service;
 
+import com.project.indicators.Utils.IndicatorValidator;
 import com.project.indicators.builder.IndicatorBuilder;
 import com.project.indicators.mapper.HistoricalMapper;
 import com.project.indicators.model.dto.IndicatorDTO;
@@ -23,18 +24,22 @@ import static org.mockito.Mockito.when;
 @DisplayName("Employee Historical Indicators Service")
 class HistoricalIndicatorsServiceTest {
 
+    private final IndicatorRequest INVALID_REQUEST = new IndicatorRequest(0);
+    private final IndicatorRequest VALID_REQUEST =  new IndicatorRequest(1);
+    private final IndicatorDTO VALID_DTO = new IndicatorDTO(3f,800f
+            ,1f,6f,1f,null);
+
     @Mock
     private HistoricalMapper historicalMapper;
 
     @Mock
     private IndicatorBuilder indicatorBuilder;
 
+    @Mock
+    private IndicatorValidator indicatorValidator;
+
     @InjectMocks
     private IndicatorsService sut;
-
-    private final IndicatorRequest INVALID_REQUEST = new IndicatorRequest(0);
-    private final IndicatorRequest VALID_REQUEST =  new IndicatorRequest(1);
-    private final IndicatorDTO VALID_DTO = new IndicatorDTO(3f,800f,1f,6f,1f,null);
 
     @BeforeEach
     public void setUp(){
@@ -84,9 +89,11 @@ class HistoricalIndicatorsServiceTest {
     class ObtainHistoricalIndicatorNoContentTest {
 
         @Test
-        @DisplayName("When DTO is null")
+        @DisplayName("When DTO is null (When the sql query does not return data)")
         public void obtainHistoricalIndicator_DTOIsNull_ReturnsNonContent(){
-            when(historicalMapper.obtainHistorical(any())).thenReturn(null);
+            when(historicalMapper.obtainHistorical(any())).thenReturn(new IndicatorDTO());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.noContent().build());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalIndicator(VALID_REQUEST);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -101,12 +108,15 @@ class HistoricalIndicatorsServiceTest {
         @Test
         @DisplayName("When No Exception is Caught")
         public void obtainHistoricalIndicator_NoExceptionCaught_ReturnsOk(){
+            final IndicatorResponse response =  indicatorBuilder.apply(VALID_DTO);
             when(historicalMapper.obtainHistorical(any())).thenReturn(VALID_DTO);
-            when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.ok(response));
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalIndicator(VALID_REQUEST);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
                     is(HttpStatus.OK));
+            assertThat(responseEntity.getBody(), is (response));
         }
     }
 }

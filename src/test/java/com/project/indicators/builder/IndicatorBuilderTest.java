@@ -54,9 +54,10 @@ class IndicatorBuilderTest {
     class ValidateIndicatorsMethod {
 
         @Test
-        @DisplayName("When method TotalAverageCactment returns result")
+        @DisplayName("When method TotalAverageCatchment returns result")
         public void obtainTotalAverageCatchment_ReturnsResult () {
-            Float actualResult = sut.obtainTotalAverageCatchment(VALID_DTO);
+            Float actualResult = sut.obtainTotalAverageCatchment(VALID_DTO.getTotalDonations()
+                    , VALID_DTO.getTotalProductiveHours());
             Float expectedResult = 0.5f;
             assertThat(actualResult,is(equalTo(expectedResult)));
         }
@@ -64,7 +65,8 @@ class IndicatorBuilderTest {
         @Test
         @DisplayName("When method TotalAverageAmount returns result")
         public void obtainTotalAverageAmount_ReturnsResult () {
-            Float actualResult = sut.obtainTotalAverageAmount(VALID_DTO);
+            Float actualResult = sut.obtainTotalAverageAmount(VALID_DTO.getTotalAmountDonations()
+            , VALID_DTO.getTotalDonations());
             Float expectedResult = 266.66666f;
             assertThat(actualResult,is(equalTo(expectedResult)));
         }
@@ -72,7 +74,8 @@ class IndicatorBuilderTest {
         @Test
         @DisplayName("When method TotalAverageCreditType returns result")
         public void obtainTotalAverageCreditType_ReturnsResult () {
-            Float actualResult = sut.obtainTotalAverageCreditType(VALID_DTO);
+            Float actualResult = sut.obtainTotalAverageCreditType(VALID_DTO.getCreditType()
+            ,VALID_DTO.getTotalDonations());
             Float expectedResult = 33.333336f;
             assertThat(actualResult,is(equalTo(expectedResult)));
         }
@@ -95,16 +98,7 @@ class IndicatorBuilderTest {
                                                                         ,266.66666f
                                                                         ,33.333336f
                                                                         ,null);
-            assertThat(actualResponse.getTotalDonations(),is(equalTo(expectedResponse.getTotalDonations())));
-            assertThat(actualResponse.getTotalAmountDonations(),is(equalTo(expectedResponse.getTotalAmountDonations())));
-            assertThat(actualResponse.getCreditType(),is(equalTo(expectedResponse.getCreditType())));
-            assertThat(actualResponse.getTotalProductiveHours(),is(equalTo(expectedResponse.getTotalProductiveHours())));
-            assertThat(actualResponse.getTotalNonProductiveHours(),is(equalTo(expectedResponse.getTotalNonProductiveHours())));
-            assertThat(actualResponse.getTotalAverageCatchment(),is(equalTo(expectedResponse.getTotalAverageCatchment())));
-            assertThat(actualResponse.getTotalAverageAmount(),is(equalTo(expectedResponse.getTotalAverageAmount())));
-            assertThat(actualResponse.getTotalAverageCreditType(),is(equalTo(expectedResponse.getTotalAverageCreditType())));
-            assertThat(actualResponse.getErrorMessage(),is(equalTo(expectedResponse.getErrorMessage())));
-
+            assertThat(actualResponse.toString(), is(expectedResponse.toString()));
         }
     }
 }

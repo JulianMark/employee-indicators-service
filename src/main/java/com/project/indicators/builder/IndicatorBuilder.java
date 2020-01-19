@@ -12,14 +12,21 @@ public class IndicatorBuilder implements Function<IndicatorDTO, IndicatorRespons
     @Override
     public IndicatorResponse apply(IndicatorDTO indicatorDTO) {
 
-        return new IndicatorResponse(numericConverter(indicatorDTO.getTotalDonations()),
-                numericConverter(indicatorDTO.getTotalAmountDonations()),
-                numericConverter(indicatorDTO.getCreditType()),
-                numericConverter(indicatorDTO.getTotalProductiveHours()),
-                numericConverter(indicatorDTO.getTotalNonProductiveHours()),
-                obtainTotalAverageCatchment(indicatorDTO),
-                obtainTotalAverageAmount(indicatorDTO),
-                obtainTotalAverageCreditType(indicatorDTO),
+        final Float TOTAL_DONATIONS = numericConverter(indicatorDTO.getTotalDonations());
+        final Float TOTAL_AMOUNT_DONATIONS = numericConverter(indicatorDTO.getTotalAmountDonations());
+        final Float CREDIT_TYPE = numericConverter(indicatorDTO.getCreditType());
+        final Float PRODUCTIVE_HOURS = numericConverter(indicatorDTO.getTotalProductiveHours());
+        final Float NON_PRODUCTIVE_HOURS = numericConverter(indicatorDTO.getTotalNonProductiveHours());
+
+
+        return new IndicatorResponse(TOTAL_DONATIONS,
+                TOTAL_AMOUNT_DONATIONS,
+                CREDIT_TYPE,
+                PRODUCTIVE_HOURS,
+                NON_PRODUCTIVE_HOURS,
+                obtainTotalAverageCatchment(TOTAL_DONATIONS,PRODUCTIVE_HOURS),
+                obtainTotalAverageAmount(TOTAL_AMOUNT_DONATIONS, TOTAL_DONATIONS),
+                obtainTotalAverageCreditType(CREDIT_TYPE,TOTAL_DONATIONS),
                 indicatorDTO.getErrorMessage());
     }
 
@@ -27,16 +34,16 @@ public class IndicatorBuilder implements Function<IndicatorDTO, IndicatorRespons
         return ( num == null) ? 0f : num;
     }
 
-    public Float obtainTotalAverageCatchment(IndicatorDTO indicatorDTO){
-        return numericConverter(indicatorDTO.getTotalDonations()) / numericConverter(indicatorDTO.getTotalProductiveHours());
+    public Float obtainTotalAverageCatchment(Float totalDonations, Float totalProductiveHours){
+        return totalDonations / totalProductiveHours;
     }
 
-    public Float obtainTotalAverageAmount(IndicatorDTO indicatorDTO){
-        return numericConverter(indicatorDTO.getTotalAmountDonations()) / numericConverter(indicatorDTO.getTotalDonations());
+    public Float obtainTotalAverageAmount(Float totalAmountDonations, Float totalDonations){
+        return totalAmountDonations / totalDonations;
     }
 
-    public Float obtainTotalAverageCreditType(IndicatorDTO indicatorDTO){
-        return (numericConverter(indicatorDTO.getCreditType()) / numericConverter(indicatorDTO.getTotalDonations())) * 100 ;
+    public Float obtainTotalAverageCreditType(Float creditType, Float totalDonations){
+        return (creditType / totalDonations) * 100 ;
     }
 
 }
