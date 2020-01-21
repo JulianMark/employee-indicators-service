@@ -1,5 +1,6 @@
 package com.project.indicators.service;
 
+import com.project.indicators.Utils.IndicatorValidator;
 import com.project.indicators.builder.IndicatorBuilder;
 import com.project.indicators.mapper.ActuallyMapper;
 import com.project.indicators.model.dto.IndicatorDTO;
@@ -24,18 +25,21 @@ import static org.mockito.Mockito.when;
 @DisplayName("Employee Actual Indicators Service Test")
 class ActualIndicatorServiceTest {
 
+    private final IndicatorRequest INVALID_REQUEST = new IndicatorRequest(0);
+    private final IndicatorRequest VALID_REQUEST =  new IndicatorRequest(1);
+    private final IndicatorDTO VALID_DTO = new IndicatorDTO(3f,800f,1f,6f,1f,null);
+
     @Mock
     private ActuallyMapper actuallyMapper;
 
     @Mock
     private IndicatorBuilder indicatorBuilder;
 
+    @Mock
+    private IndicatorValidator indicatorValidator;
+
     @InjectMocks
     private IndicatorsService sut;
-
-    private final IndicatorRequest INVALID_REQUEST = new IndicatorRequest(0);
-    private final IndicatorRequest VALID_REQUEST =  new IndicatorRequest(1);
-    private final IndicatorDTO VALID_DTO = new IndicatorDTO(3f,800f,1f,6f,1f,null);
 
     @BeforeEach
     public void setUp(){
@@ -48,7 +52,7 @@ class ActualIndicatorServiceTest {
 
         @Test
         @DisplayName("When Request is null")
-        public void obtainActualIndicator_RequestIsNull_ReturnBadRequest(){
+        public void obtainActualIndicator_RequestIsNull_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainActualIndicator(null);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -57,7 +61,7 @@ class ActualIndicatorServiceTest {
 
         @Test
         @DisplayName("When idEmployee is zero or less zero")
-        public void obtainActualIndicator_IdEmployeeIsZeroOrLessZero_ReturnBadRequest(){
+        public void obtainActualIndicator_IdEmployeeIsZeroOrLessZero_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainActualIndicator(INVALID_REQUEST);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -87,11 +91,12 @@ class ActualIndicatorServiceTest {
         @Test
         @DisplayName("When DTO is null")
         public void obtainActualIndicator_DTOIsNull_ReturnsNonContent(){
-            when(actuallyMapper.obtainActually(any())).thenReturn(null);
+            when(actuallyMapper.obtainActually(any())).thenReturn(new IndicatorDTO());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.noContent().build());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainActualIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.NO_CONTENT));
+
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.NO_CONTENT));
         }
     }
 
@@ -102,12 +107,13 @@ class ActualIndicatorServiceTest {
         @Test
         @DisplayName("When No Exception is Caught")
         public void obtainActualIndicator_NoExceptionCaught_ReturnsOk(){
+            IndicatorResponse response = indicatorBuilder.apply(VALID_DTO);
             when(actuallyMapper.obtainActually(any())).thenReturn(VALID_DTO);
-            when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.ok(response));
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainActualIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.OK));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.OK));
+            assertThat(responseEntity.getBody(), is(response));
         }
     }
 }

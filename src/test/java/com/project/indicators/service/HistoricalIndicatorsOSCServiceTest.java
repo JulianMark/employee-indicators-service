@@ -1,5 +1,6 @@
 package com.project.indicators.service;
 
+import com.project.indicators.Utils.IndicatorValidator;
 import com.project.indicators.builder.IndicatorBuilder;
 import com.project.indicators.mapper.OSCMapper;
 import com.project.indicators.model.dto.IndicatorDTO;
@@ -23,19 +24,22 @@ import static org.mockito.Mockito.when;
 @DisplayName("Employee Historical Indicators OSC Service Test")
 class HistoricalIndicatorsOSCServiceTest {
 
+    private final OSCRequest INVALID_REQUEST_EMPLOYEE = new OSCRequest(0,1);
+    private final OSCRequest INVALID_REQUEST_OSC = new OSCRequest(1,0);
+    private final OSCRequest VALID_REQUEST =  new OSCRequest(1,1);
+    private final IndicatorDTO VALID_DTO = new IndicatorDTO(3f,800f,1f,6f,1f,null);
+
     @Mock
     private OSCMapper oscMapper;
+
+    @Mock
+    private IndicatorValidator indicatorValidator;
 
     @Mock
     private IndicatorBuilder indicatorBuilder;
 
     @InjectMocks
     private IndicatorsService sut;
-
-    private final OSCRequest INVALID_REQUEST_EMPLOYEE = new OSCRequest(0,1);
-    private final OSCRequest INVALID_REQUEST_OSC = new OSCRequest(1,0);
-    private final OSCRequest VALID_REQUEST =  new OSCRequest(1,1);
-    private final IndicatorDTO VALID_DTO = new IndicatorDTO(3f,800f,1f,6f,1f,null);
 
     @BeforeEach
     public void setUp(){
@@ -50,29 +54,22 @@ class HistoricalIndicatorsOSCServiceTest {
         @DisplayName("When Request is null")
         public void obtainHistoricalIndicatorOSC_RequestIsNull_ReturnBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalOSC(null);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.BAD_REQUEST));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         }
 
         @Test
         @DisplayName("When idEmployee is zero or less zero")
         public void obtainHistoricalIndicatorOSC_IdEmployeeIsZeroOrLessZero_ReturnBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalOSC(INVALID_REQUEST_EMPLOYEE);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.BAD_REQUEST));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         }
 
         @Test
         @DisplayName("When idOSC is zero or less zero")
         public void obtainHistoricalIndicatorOSC_IdOSCIsZeroOrLessZero_ReturnBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalOSC(INVALID_REQUEST_OSC);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.BAD_REQUEST));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         }
-
     }
 
     @Nested
@@ -84,8 +81,7 @@ class HistoricalIndicatorsOSCServiceTest {
         public void obtainHistoricalIndicatorOSC_OSCMapperThrowException_ReturnsInternalServerError(){
             when(oscMapper.obtainOSC(any())).thenThrow(new RuntimeException ("something bad happened"));
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalOSC(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
+            assertThat("Status Code Response", responseEntity.getStatusCode(),
                     is(HttpStatus.INTERNAL_SERVER_ERROR));
         }
     }
@@ -97,11 +93,12 @@ class HistoricalIndicatorsOSCServiceTest {
         @Test
         @DisplayName("When DTO is null")
         public void obtainHistoricalIndicatorOSC_DTOIsNull_ReturnsNonContent(){
-            when(oscMapper.obtainOSC(any())).thenReturn(null);
+            when(oscMapper.obtainOSC(any())).thenReturn(new IndicatorDTO());
+            when(indicatorValidator.obtainIndicatorValidator()).thenReturn(indicatorDTO -> ResponseEntity.noContent().build());
+
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalOSC(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.NO_CONTENT));
+
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.NO_CONTENT));
         }
     }
 
@@ -112,12 +109,14 @@ class HistoricalIndicatorsOSCServiceTest {
         @Test
         @DisplayName("When No Exception is Caught")
         public void obtainHistoricalIndicatorOSC_NoExceptionCaught_ReturnsOk(){
+            IndicatorResponse response = indicatorBuilder.apply(VALID_DTO);
             when(oscMapper.obtainOSC(any())).thenReturn(VALID_DTO);
-            when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.ok(response));
+
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalOSC(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.OK));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.OK));
+            assertThat(responseEntity.getBody(), is(response));
         }
     }
 
