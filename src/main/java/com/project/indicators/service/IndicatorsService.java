@@ -27,6 +27,8 @@ import static com.project.indicators.Utils.Utils.*;
 public class IndicatorsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndicatorsService.class);
+    private static final String INVALID_PARAMETER = "Parameters entered are invalid";
+    private static final String EXCEPTION_MESSAGE = "An error occurred while trying to get historical indicators for employee id {}";
     private final HistoricalMapper historicalMapper;
     private final OSCMapper oscMapper;
     private final ActuallyMapper actuallyMapper;
@@ -68,11 +70,10 @@ public class IndicatorsService {
                     .map(indicatorValidator.obtainIndicatorValidator())
                     .orElseGet(indicatorValidator.obtainEmptyIndicator());
         }catch (IllegalArgumentException iae){
-            LOGGER.warn("Parameters entered are invalid", iae);
+            LOGGER.warn(INVALID_PARAMETER, iae);
             return ResponseEntity.badRequest().body(new IndicatorResponse(iae.getMessage()));
         }catch (Exception ex) {
-            LOGGER.error("An error occurred while trying to get historical indicators for employee id {}"
-                    ,request.getIdEmployee(), ex);
+            LOGGER.error(EXCEPTION_MESSAGE,request.getIdEmployee(), ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR).body(new IndicatorResponse(ex.getMessage()));
         }
@@ -93,20 +94,14 @@ public class IndicatorsService {
             validateRequest(request);
             validateIdNumber(request.getIdEmployee());
             validateIdNumber(request.getIdOSC());
-            final IndicatorDTO indicatorDTO = oscMapper.obtainOSC(request);
-            if (indicatorDTO == null){
-                LOGGER.info("No se obtubieron indicadores historicos de la OSC para el emmpleado con ID: "+request.getIdEmployee());
-                return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                        .body(new IndicatorResponse("Empleado o indicadores no encontrados"));
-            }
-            final IndicatorResponse response = indicatorBuilder.apply(indicatorDTO);
-            LOGGER.info("Se obtuvo el indicador historico de la osc {} para el empleado con ID: {}", request.getIdOSC(), request.getIdEmployee());
-            return ResponseEntity.ok(response);
+            return Optional.ofNullable(oscMapper.obtainOSC(request))
+                    .map(indicatorValidator.obtainIndicatorValidator())
+                    .orElseGet(indicatorValidator.obtainEmptyIndicator());
         }catch (IllegalArgumentException iae){
-            LOGGER.warn("Los parametros ingresados son invalidos", iae);
+            LOGGER.warn(INVALID_PARAMETER, iae);
             return ResponseEntity.badRequest().body(new IndicatorResponse(iae.getMessage()));
         }catch (Exception ex) {
-            LOGGER.error("Ocurrio un error al intentar obtener los indicadores historicos por OSC para el empleado id {}, OSC id {}"
+            LOGGER.error(EXCEPTION_MESSAGE+", OSC id {}"
                     ,request.getIdEmployee(),request.getIdOSC(), ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR).body(new IndicatorResponse(ex.getMessage()));
@@ -127,21 +122,14 @@ public class IndicatorsService {
         try {
             validateRequest(request);
             validateIdNumber(request.getIdEmployee());
-            final IndicatorDTO indicatorDTO = actuallyMapper.obtainActually(request);
-            if (indicatorDTO == null){
-                LOGGER.info("No se obtubieron indicadores actuales para el emmpleado con ID: "+request.getIdEmployee());
-                return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                        .body(new IndicatorResponse("Empleado o indicadores actuales no encontrados"));
-            }
-            final IndicatorResponse response = indicatorBuilder.apply(indicatorDTO);
-            LOGGER.info("Se obtuvo el indicador actual para el empleado con ID: "+request.getIdEmployee());
-            return ResponseEntity.ok(response);
+            return Optional.ofNullable(actuallyMapper.obtainActually(request))
+                    .map(indicatorValidator.obtainIndicatorValidator())
+                    .orElseGet(indicatorValidator.obtainEmptyIndicator());
         }catch (IllegalArgumentException iae){
-            LOGGER.warn("Los parametros ingresados son invalidos", iae);
+            LOGGER.warn(INVALID_PARAMETER, iae);
             return ResponseEntity.badRequest().body(new IndicatorResponse(iae.getMessage()));
         }catch (Exception ex) {
-            LOGGER.error("Ocurrio un error al intentar obtener los indicadores actuales para el empleado id {}"
-                    ,request.getIdEmployee(), ex);
+            LOGGER.error(EXCEPTION_MESSAGE, request.getIdEmployee(), ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR).body(new IndicatorResponse(ex.getMessage()));
         }

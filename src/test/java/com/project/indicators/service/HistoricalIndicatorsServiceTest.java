@@ -108,7 +108,7 @@ class HistoricalIndicatorsServiceTest {
         @Test
         @DisplayName("When No Exception is Caught")
         public void obtainHistoricalIndicator_NoExceptionCaught_ReturnsOk(){
-            final IndicatorResponse response =  indicatorBuilder.apply(VALID_DTO);
+            final IndicatorResponse response = indicatorBuilder.apply(VALID_DTO);
             when(historicalMapper.obtainHistorical(any())).thenReturn(VALID_DTO);
             when(indicatorValidator.obtainIndicatorValidator())
                     .thenReturn(indicatorDTO -> ResponseEntity.ok(response));
