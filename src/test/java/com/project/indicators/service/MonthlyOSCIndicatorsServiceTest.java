@@ -1,6 +1,7 @@
 package com.project.indicators.service;
 
 
+import com.project.indicators.Utils.IndicatorValidator;
 import com.project.indicators.builder.IndicatorBuilder;
 import com.project.indicators.mapper.MonthlyOSCMapper;
 import com.project.indicators.model.dto.IndicatorDTO;
@@ -30,6 +31,9 @@ class MonthlyOSCIndicatorsServiceTest {
     @Mock
     private IndicatorBuilder indicatorBuilder;
 
+    @Mock
+    private IndicatorValidator indicatorValidator;
+
     @InjectMocks
     private IndicatorsService sut;
 
@@ -44,12 +48,12 @@ class MonthlyOSCIndicatorsServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 400 (Bad Request)")
+    @DisplayName("Should returns 400 (Bad Request)")
     class ObtainMonthlyOSCIndicatorsRequestTest {
 
         @Test
         @DisplayName("When Request is null")
-        public void obtainMonthlyOSCIndicator_RequestIsNull_ReturnBadRequest(){
+        public void obtainMonthlyOSCIndicator_RequestIsNull_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyOSCIndicator(null);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -58,7 +62,7 @@ class MonthlyOSCIndicatorsServiceTest {
 
         @Test
         @DisplayName("When idEmployee is zero or less zero")
-        public void obtainMonthlyOSCIndicator_IdEmployeeIsZeroOrLessZero_ReturnBadRequest(){
+        public void obtainMonthlyOSCIndicator_IdEmployeeIsZeroOrLessZero_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyOSCIndicator(INVALID_REQUEST_EMPLOYEE);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -67,17 +71,16 @@ class MonthlyOSCIndicatorsServiceTest {
 
         @Test
         @DisplayName("When idOSC is zero or less zero")
-        public void obtainHistoricalIndicatorOSC_IdOSCIsZeroOrLessZero_ReturnBadRequest(){
+        public void obtainHistoricalIndicatorOSC_IdOSCIsZeroOrLessZero_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyOSCIndicator(INVALID_REQUEST_OSC);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
                     is(HttpStatus.BAD_REQUEST));
         }
-
     }
 
     @Nested
-    @DisplayName("Should return 500 (Internal Server Error)")
+    @DisplayName("Should returns 500 (Internal Server Error)")
     class ObtainMonthlyOSCIndicatorInternalServerErrorTest {
 
         @Test
@@ -91,37 +94,36 @@ class MonthlyOSCIndicatorsServiceTest {
         }
     }
 
-
     @Nested
-    @DisplayName("Should return 204 (No Content)")
+    @DisplayName("Should returns 204 (No Content)")
     class ObtainMonthlyOSCIndicatorNoContentTest {
 
         @Test
         @DisplayName("When DTO is null")
         public void obtainMonthlyOSCIndicator_DTOIsNull_ReturnsNonContent(){
-            when(monthlyOSCMapper.obtainMonthlyOSC(any())).thenReturn(null);
+            when(monthlyOSCMapper.obtainMonthlyOSC(any())).thenReturn(new IndicatorDTO());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.noContent().build());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyOSCIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.NO_CONTENT));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.NO_CONTENT));
         }
 
     }
 
     @Nested
-    @DisplayName("Should return 200 (OK)")
+    @DisplayName("Should returns 200 (OK)")
     class ObtainMonthlyOSCIndicatorStatusOKTest {
 
         @Test
         @DisplayName("When No Exception is Caught")
         public void obtainMonthlyOSCIndicator_NoExceptionCaught_ReturnsOk(){
+            final IndicatorResponse response = indicatorBuilder.apply(VALID_DTO);
             when(monthlyOSCMapper.obtainMonthlyOSC(any())).thenReturn(VALID_DTO);
-            when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.ok(response));
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyOSCIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.OK));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.OK));
+            assertThat(responseEntity.getBody(), is(response));
         }
     }
-
 }

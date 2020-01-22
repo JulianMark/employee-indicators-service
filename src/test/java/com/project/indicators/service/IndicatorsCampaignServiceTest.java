@@ -1,5 +1,6 @@
 package com.project.indicators.service;
 
+import com.project.indicators.Utils.IndicatorValidator;
 import com.project.indicators.builder.IndicatorBuilder;
 import com.project.indicators.mapper.CampaignMapper;
 import com.project.indicators.mapper.OSCMapper;
@@ -29,6 +30,9 @@ class IndicatorsCampaignServiceTest {
     private CampaignMapper campaignMapper;
 
     @Mock
+    private IndicatorValidator indicatorValidator;
+
+    @Mock
     private IndicatorBuilder indicatorBuilder;
 
     @InjectMocks
@@ -45,12 +49,12 @@ class IndicatorsCampaignServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 400 (Bad Request)")
+    @DisplayName("Should returns 400 (Bad Request)")
     class ObtainCampaignIndicatorRequestTest {
 
         @Test
         @DisplayName("When Request is null")
-        public void obtainCampaignIndicator_RequestIsNull_ReturnBadRequest(){
+        public void obtainCampaignIndicator_RequestIsNull_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainCampaignIndicator(null);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -59,7 +63,7 @@ class IndicatorsCampaignServiceTest {
 
         @Test
         @DisplayName("When idEmployee is zero or less zero")
-        public void obtainCampaignIndicator_IdEmployeeIsZeroOrLessZero_ReturnBadRequest(){
+        public void obtainCampaignIndicator_IdEmployeeIsZeroOrLessZero_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainCampaignIndicator(INVALID_REQUEST_EMPLOYEE);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -68,7 +72,7 @@ class IndicatorsCampaignServiceTest {
 
         @Test
         @DisplayName("When idCampaign is zero or less zero")
-        public void obtainHistoricalIndicatorOSC_IdOSCIsZeroOrLessZero_ReturnBadRequest(){
+        public void obtainHistoricalIndicatorOSC_IdOSCIsZeroOrLessZero_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainCampaignIndicator(INVALID_REQUEST_CAMPAIGN);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -78,7 +82,7 @@ class IndicatorsCampaignServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 500 (Internal Server Error)")
+    @DisplayName("Should returns 500 (Internal Server Error)")
     class ObtainCampaignIndicatorInternalServerErrorTest {
 
         @Test
@@ -93,37 +97,34 @@ class IndicatorsCampaignServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 204 (No Content)")
+    @DisplayName("Should returns 204 (No Content)")
     class ObtainCampaignIndicatorNoContentTest {
 
         @Test
         @DisplayName("When DTO is null")
         public void obtainCampaignIndicator_DTOIsNull_ReturnsNonContent(){
-            when(campaignMapper.obtainCampaign(any())).thenReturn(null);
+            when(campaignMapper.obtainCampaign(any())).thenReturn(new IndicatorDTO());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.noContent().build());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainCampaignIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.NO_CONTENT));
-            assertThat(responseEntity.getBody().getErrorMessage(),is("Indicadores no encontrados"));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.NO_CONTENT));
         }
-
-
     }
 
     @Nested
-    @DisplayName("Should return 200 (OK)")
+    @DisplayName("Should returns 200 (OK)")
     class ObtainCampaignIndicatorStatusOKTest {
 
         @Test
         @DisplayName("When No Exception is Caught")
         public void obtainCampaignIndicator_NoExceptionCaught_ReturnsOk(){
+            IndicatorResponse response = indicatorBuilder.apply(VALID_DTO);
             when(campaignMapper.obtainCampaign(any())).thenReturn(VALID_DTO);
-            when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.ok(response));
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainCampaignIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.OK));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.OK));
+            assertThat(responseEntity.getBody(), is(response));
         }
     }
-
 }

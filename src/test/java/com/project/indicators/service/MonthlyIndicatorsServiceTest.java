@@ -1,5 +1,6 @@
 package com.project.indicators.service;
 
+import com.project.indicators.Utils.IndicatorValidator;
 import com.project.indicators.builder.IndicatorBuilder;
 import com.project.indicators.mapper.MonthlyMapper;
 import com.project.indicators.model.dto.IndicatorDTO;
@@ -29,6 +30,9 @@ class MonthlyIndicatorsServiceTest {
     @Mock
     private IndicatorBuilder indicatorBuilder;
 
+    @Mock
+    private IndicatorValidator indicatorValidator;
+
     @InjectMocks
     private IndicatorsService sut;
 
@@ -42,12 +46,12 @@ class MonthlyIndicatorsServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 400 (Bad Request)")
+    @DisplayName("Should returns 400 (Bad Request)")
     class ObtainMonthlyIndicatorsRequestTest {
 
         @Test
         @DisplayName("When Request is null")
-        public void obtainMonthlyIndicator_RequestIsNull_ReturnBadRequest(){
+        public void obtainMonthlyIndicator_RequestIsNull_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyIndicator(null);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -56,7 +60,7 @@ class MonthlyIndicatorsServiceTest {
 
         @Test
         @DisplayName("When idEmployee is zero or less zero")
-        public void obtainMonthlyIndicator_IdEmployeeIsZeroOrLessZero_ReturnBadRequest(){
+        public void obtainMonthlyIndicator_IdEmployeeIsZeroOrLessZero_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyIndicator(INVALID_REQUEST);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -65,7 +69,7 @@ class MonthlyIndicatorsServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 500 (Internal Server Error)")
+    @DisplayName("Should returns 500 (Internal Server Error)")
     class ObtainMonthlyInternalServerErrorTest {
 
         @Test
@@ -80,33 +84,34 @@ class MonthlyIndicatorsServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 204 (No Content)")
+    @DisplayName("Should returns 204 (No Content)")
     class ObtainMonthlyIndicatorNoContentTest {
 
         @Test
         @DisplayName("When DTO is null")
         public void obtainMonthlyIndicator_DTOIsNull_ReturnsNonContent(){
-            when(monthlyMapper.obtainMonthly(any())).thenReturn(null);
+            when(monthlyMapper.obtainMonthly(any())).thenReturn(new IndicatorDTO());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.noContent().build());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.NO_CONTENT));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.NO_CONTENT));
         }
     }
 
     @Nested
-    @DisplayName("Should return 200 (OK)")
+    @DisplayName("Should returns 200 (OK)")
     class ObtainMonthlyIndicatorStatusOKTest {
 
         @Test
         @DisplayName("When No Exception is Caught")
         public void obtainMonthlyIndicator_NoExceptionCaught_ReturnsOk(){
+            final IndicatorResponse response = indicatorBuilder.apply(VALID_DTO);
             when(monthlyMapper.obtainMonthly(any())).thenReturn(VALID_DTO);
-            when(indicatorBuilder.apply(VALID_DTO)).thenReturn(new IndicatorResponse());
+            when(indicatorValidator.obtainIndicatorValidator())
+                    .thenReturn(indicatorDTO -> ResponseEntity.ok(response));
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainMonthlyIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.OK));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.OK));
+            assertThat(responseEntity.getBody(), is(response));
         }
     }
 }

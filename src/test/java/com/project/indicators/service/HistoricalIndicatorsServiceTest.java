@@ -47,12 +47,12 @@ class HistoricalIndicatorsServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 400 (Bad Request)")
+    @DisplayName("Should returns 400 (Bad Request)")
     class ObtainHistoricalIndicatorRequestTest {
 
         @Test
         @DisplayName("When Request is null")
-        public void obtainHistoricalIndicator_RequestIsNull_ReturnBadRequest(){
+        public void obtainHistoricalIndicator_RequestIsNull_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalIndicator(null);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -61,7 +61,7 @@ class HistoricalIndicatorsServiceTest {
 
         @Test
         @DisplayName("When idEmployee is zero or less zero")
-        public void obtainHistoricalIndicator_IdEmployeeIsZeroOrLessZero_ReturnBadRequest(){
+        public void obtainHistoricalIndicator_IdEmployeeIsZeroOrLessZero_ReturnsBadRequest(){
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalIndicator(INVALID_REQUEST);
             assertThat("Status Code Response",
                     responseEntity.getStatusCode(),
@@ -70,7 +70,7 @@ class HistoricalIndicatorsServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 500 (Internal Server Error)")
+    @DisplayName("Should returns 500 (Internal Server Error)")
     class ObtainHistoricalInternalServerErrorTest {
 
         @Test
@@ -85,7 +85,7 @@ class HistoricalIndicatorsServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 204 (No Content)")
+    @DisplayName("Should returns 204 (No Content)")
     class ObtainHistoricalIndicatorNoContentTest {
 
         @Test
@@ -95,14 +95,12 @@ class HistoricalIndicatorsServiceTest {
             when(indicatorValidator.obtainIndicatorValidator())
                     .thenReturn(indicatorDTO -> ResponseEntity.noContent().build());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.NO_CONTENT));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.NO_CONTENT));
         }
     }
 
     @Nested
-    @DisplayName("Should return 200 (OK)")
+    @DisplayName("Should returns 200 (OK)")
     class ObtainHistoricalIndicatorStatusOKTest {
 
         @Test
@@ -113,9 +111,7 @@ class HistoricalIndicatorsServiceTest {
             when(indicatorValidator.obtainIndicatorValidator())
                     .thenReturn(indicatorDTO -> ResponseEntity.ok(response));
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainHistoricalIndicator(VALID_REQUEST);
-            assertThat("Status Code Response",
-                    responseEntity.getStatusCode(),
-                    is(HttpStatus.OK));
+            assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.OK));
             assertThat(responseEntity.getBody(), is (response));
         }
     }

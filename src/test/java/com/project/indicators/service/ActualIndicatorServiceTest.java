@@ -47,7 +47,7 @@ class ActualIndicatorServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 400 (Bad Request)")
+    @DisplayName("Should returns 400 (Bad Request)")
     class ObtainActualIndicatorRequestTest {
 
         @Test
@@ -70,7 +70,7 @@ class ActualIndicatorServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 500 (Internal Server Error)")
+    @DisplayName("Should returns 500 (Internal Server Error)")
     class ObtainActualInternalServerErrorTest {
 
         @Test
@@ -85,7 +85,7 @@ class ActualIndicatorServiceTest {
     }
 
     @Nested
-    @DisplayName("Should return 204 (No Content)")
+    @DisplayName("Should returns 204 (No Content)")
     class ObtainActualIndicatorNoContentTest {
 
         @Test
@@ -95,7 +95,6 @@ class ActualIndicatorServiceTest {
             when(indicatorValidator.obtainIndicatorValidator())
                     .thenReturn(indicatorDTO -> ResponseEntity.noContent().build());
             ResponseEntity<IndicatorResponse> responseEntity = sut.obtainActualIndicator(VALID_REQUEST);
-
             assertThat("Status Code Response", responseEntity.getStatusCode(), is(HttpStatus.NO_CONTENT));
         }
     }
