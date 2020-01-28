@@ -35,15 +35,14 @@ public class IndicatorBuilder implements Function<IndicatorDTO, IndicatorRespons
     }
 
     public Float obtainTotalAverageCatchment(Float totalDonations, Float totalProductiveHours){
-        return totalDonations / totalProductiveHours;
+        return (totalDonations == 0) ? totalDonations : totalDonations / totalProductiveHours;
     }
 
     public Float obtainTotalAverageAmount(Float totalAmountDonations, Float totalDonations){
-        return totalAmountDonations / totalDonations;
+        return (totalDonations == 0) ? totalDonations : totalAmountDonations / totalDonations;
     }
 
     public Float obtainTotalAverageCreditType(Float creditType, Float totalDonations){
-        return (creditType / totalDonations) * 100 ;
+        return (totalDonations == 0) ? totalDonations : (creditType / totalDonations) * 100 ;
     }
-
 }

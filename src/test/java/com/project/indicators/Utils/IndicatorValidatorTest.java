@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-
+@DisplayName("Indicator Validator Test")
 class IndicatorValidatorTest {
 
     private final IndicatorDTO VALID_DTO = new IndicatorDTO(3f,800f
@@ -38,7 +38,7 @@ class IndicatorValidatorTest {
     }
 
     @Test
-    @DisplayName("When IndicatorDTO is not null return No Content (204)")
+    @DisplayName("When IndicatorDTO is not null returns No Content (204)")
     public void obtainEmptyIndicator_IndicatorDTOIsNull_ReturnsNoContent (){
         Supplier<ResponseEntity<IndicatorResponse>> expected = IndicatorValidatorTest::get;
         Supplier<ResponseEntity<IndicatorResponse>> actual = sut.obtainEmptyIndicator();
@@ -47,7 +47,7 @@ class IndicatorValidatorTest {
     }
 
     @Test
-    @DisplayName("When IndicatorDTO is not null return ok (200)")
+    @DisplayName("When IndicatorDTO is not null returns ok (200)")
     public void obtainIndicator_IndicatorDTOIsNotNull_ReturnsOK (){
         IndicatorResponse expected = indicatorBuilder.apply(VALID_DTO);
 

@@ -25,7 +25,7 @@ public class IndicatorValidator {
         return this::obtainIndicator;
     }
 
-    ResponseEntity<IndicatorResponse> obtainIndicator(IndicatorDTO indicatorDTO) {
+    public ResponseEntity<IndicatorResponse> obtainIndicator(IndicatorDTO indicatorDTO) {
         final IndicatorResponse response = indicatorBuilder.apply(indicatorDTO);
         LOGGER.info("Indicators for the employee were obtained");
         return ResponseEntity.ok(response);

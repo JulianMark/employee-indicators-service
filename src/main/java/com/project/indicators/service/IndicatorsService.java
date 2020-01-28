@@ -36,7 +36,6 @@ public class IndicatorsService {
     private final MonthlyOSCMapper monthlyOSCMapper;
     private final RangeMapper rangeMapper;
     private final CampaignMapper campaignMapper;
-    private final IndicatorBuilder indicatorBuilder;
     private final IndicatorValidator indicatorValidator;
 
     @Autowired
@@ -45,7 +44,6 @@ public class IndicatorsService {
         this.oscMapper = oscMapper;
         this.actuallyMapper = actuallyMapper;
         this.monthlyOSCMapper = monthlyOSCMapper;
-        this.indicatorBuilder = indicatorBuilder;
         this.monthlyMapper = monthlyMapper;
         this.rangeMapper = rangeMapper;
         this.campaignMapper = campaignMapper;
@@ -151,7 +149,7 @@ public class IndicatorsService {
             validateIdNumber(request.getIdEmployee());
             validateMonth(request.getMonthNumber());
             validateYear(request.getYearNumber());
-            return Optional.of(monthlyMapper.obtainMonthly(request))
+            return Optional.ofNullable(monthlyMapper.obtainMonthly(request))
                     .map(indicatorValidator.obtainIndicatorValidator())
                     .orElseGet(indicatorValidator.obtainEmptyIndicator());
         }catch (IllegalArgumentException iae){
@@ -181,7 +179,7 @@ public class IndicatorsService {
             validateMonth(request.getMonthNumber());
             validateYear(request.getYearNumber());
             validateIdNumber(request.getIdOSC());
-            return Optional.of(monthlyOSCMapper.obtainMonthlyOSC(request))
+            return Optional.ofNullable(monthlyOSCMapper.obtainMonthlyOSC(request))
                     .map(indicatorValidator.obtainIndicatorValidator())
                     .orElseGet(indicatorValidator.obtainEmptyIndicator());
         }catch (IllegalArgumentException iae){
@@ -210,14 +208,14 @@ public class IndicatorsService {
             validateIdNumber(request.getIdEmployee());
             isDateValid(request.getInitialDate());
             isDateValid(request.getFinalDate());
-            return Optional.of(rangeMapper.obtainRange(request))
+            return Optional.ofNullable(rangeMapper.obtainRange(request))
                     .map(indicatorValidator.obtainIndicatorValidator())
                     .orElseGet(indicatorValidator.obtainEmptyIndicator());
         }catch (IllegalArgumentException iae){
             LOGGER.warn(INVALID_PARAMETER, iae);
             return ResponseEntity.badRequest().body(new IndicatorResponse(iae.getMessage()));
         }catch (Exception ex) {
-            LOGGER.error(EXCEPTION_MESSAGE+"by range from {} to {}"
+            LOGGER.error(EXCEPTION_MESSAGE+" by range from {} to {}"
                     ,request.getIdEmployee()
                     ,request.getInitialDate()
                     ,request.getFinalDate(), ex);
@@ -241,14 +239,14 @@ public class IndicatorsService {
             validateRequest(request);
             validateIdNumber(request.getIdEmployee());
             validateIdNumber(request.getIdCampaign());
-            return Optional.of(campaignMapper.obtainCampaign(request))
+            return Optional.ofNullable(campaignMapper.obtainCampaign(request))
                     .map(indicatorValidator.obtainIndicatorValidator())
                     .orElseGet(indicatorValidator.obtainEmptyIndicator());
         }catch (IllegalArgumentException iae){
             LOGGER.warn(INVALID_PARAMETER, iae);
             return ResponseEntity.badRequest().body(new IndicatorResponse(iae.getMessage()));
         }catch (Exception ex) {
-            LOGGER.error(EXCEPTION_MESSAGE+"campaign id {}"
+            LOGGER.error(EXCEPTION_MESSAGE+" campaign id {}"
                     ,request.getIdEmployee(),request.getIdCampaign(), ex);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR).body(new IndicatorResponse(ex.getMessage()));

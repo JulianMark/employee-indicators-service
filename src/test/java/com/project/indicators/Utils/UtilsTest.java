@@ -17,26 +17,26 @@ class UtilsTest {
     }
 
     @Test
-    @DisplayName("When request is null return Illegal Argument Exception")
+    @DisplayName("When request is null returns Illegal Argument Exception")
     void validateRequest_RequestIsNull_ReturnsIllegalArgumentException() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> validateRequest(null));
     }
 
     @Test
-    @DisplayName("When id is null or lees zero return Illegal Argument Exception")
+    @DisplayName("When id is null or lees zero returns Illegal Argument Exception")
     void validateIdNumber_IdIsNullOrLessZero_ReturnsIllegalArgumentException() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> validateIdNumber(null));
         Assertions.assertThrows(IllegalArgumentException.class, () -> validateIdNumber(0));
     }
 
     @Test
-    @DisplayName("When DTO is null return Illegal Argument Exception")
+    @DisplayName("When DTO is null returns Illegal Argument Exception")
     void validateIndicatorDTO_DTOIsNull_ReturnsIllegalArgumentException() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> validateIndicatorDTO(null));
     }
 
     @Test
-    @DisplayName("When month is null or out range return Illegal Argument Exception")
+    @DisplayName("When month is null or out range returns Illegal Argument Exception")
     void validateMonth_MonthIsNullOrOutRange_ReturnsIllegalArgumentException() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> validateMonth(null));
         Assertions.assertThrows(IllegalArgumentException.class, () -> validateMonth(0));
@@ -44,7 +44,7 @@ class UtilsTest {
     }
 
     @Test
-    @DisplayName("When year is null or less 2015 return Illegal Argument Exception")
+    @DisplayName("When year is null or less 2015 returns Illegal Argument Exception")
     void validateYear_YearIsNullOrLees2015_ReturnsIllegalArgumentException() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> validateYear(null));
         Assertions.assertThrows(IllegalArgumentException.class, () -> validateYear(2014));
@@ -52,7 +52,7 @@ class UtilsTest {
     }
 
     @Test
-    @DisplayName("When date is incorrect format is null return Illegal Argument Exception")
+    @DisplayName("When date is incorrect format is null returns Illegal Argument Exception")
     void isDateValid_DateIsIncorrectFormat_ReturnsIllegalArgumentException() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> isDateValid("11/05/2019"));
     }
